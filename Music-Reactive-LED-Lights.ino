@@ -19,7 +19,7 @@
 void setup()
 {
   Serial.begin(115200);
-    pinMode(redPin, OUTPUT);
+  pinMode(redPin, OUTPUT);
   pinMode(greenPin, OUTPUT);
   pinMode(bluePin, OUTPUT);
     setColor(rand()%255,rand()%255, rand()%255);
@@ -41,6 +41,8 @@ void setup()
       delay(1);
  }
 // the loop routine runs over and over again forever:
+
+//Analyzes the music attempting to locate the bass drum
 void scanMusic()
 {
   long add = 0;
