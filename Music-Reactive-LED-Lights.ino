@@ -67,6 +67,7 @@ void scanMusic()
     wait = (wait +1)%20;
     if(wait%5 == 0) waitFlag = true;
     if (count == 0) {average = (add + peak*25)/45-2; add = 0;}
+    /* FOR DEBUGGING
     Serial.print("<");
     Serial.print(FHT_N/2);
     Serial.print(":");
@@ -78,6 +79,7 @@ void scanMusic()
     Serial.print(" - " );
     Serial.print(waitFlag);
     Serial.println(">");
+    */
     if((output>=average || output>=peak )&& output > 70 && waitFlag){
       red = rand()%255;
       blue = rand()%100;
@@ -92,9 +94,13 @@ void scanMusic()
     fadeRandom();
   }
 }
+
+//Homework Mode
 void white(){
   setColor(255,100,130);
 }
+
+//Not listen to music, just fade randomly
 void fadeRandom(){
 if(red!=red2) 
     red = red + ((red2-red)/abs(red2-red));
@@ -111,8 +117,10 @@ if(red!=red2)
     blue2 = (blue2+231)%50;
   }
    setColor(red, green, blue);
-delay(10);
+delay(40);
 }
+
+//Designed to Help you sleep better, unknown if it actually works
 void nightMode(){
   boolean blank = false;
   int redFade = 30;
@@ -134,6 +142,8 @@ blank = false;
   delay(70);
 }
 }
+
+ //the real mvp
  void setColor(int red, int green, int blue)
 {
   if(red<0)
