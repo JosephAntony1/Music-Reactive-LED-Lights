@@ -3,8 +3,8 @@
 #include <FHT.h>
 
 #define MIC_PIN   0
-  int redPin = 10;
-  int greenPin = 9;
+  int redPin = 9;
+  int greenPin = 10;
   int bluePin = 11;
   
   int red = 255;
@@ -15,19 +15,18 @@
   int green2 = 0;
   int blue2 = 0;
   int knob;
-
 void setup()
 {
   Serial.begin(115200);
   pinMode(redPin, OUTPUT);
   pinMode(greenPin, OUTPUT);
   pinMode(bluePin, OUTPUT);
-    setColor(rand()%255,rand()%255, rand()%255);
+  setColor(rand()%255,rand()%255, rand()%255);
 
 }
   
   void loop() {
-  int knob = analogRead(2);
+  knob = 900;
 
     if(knob > 1000)
       white();
@@ -51,7 +50,7 @@ void scanMusic()
   int peak = 100;
   boolean waitFlag = true;
   int wait = 0;
-  while(analogRead(2)>800&&analogRead(2)<1000) { // reduces jitter
+  while(knob>800&&knob<1000) { // reduces jitter
     for (int i = 0 ; i < FHT_N ; i++)   // save 256 samples
     {
       int sample = analogRead(MIC_PIN);
@@ -62,25 +61,28 @@ void scanMusic()
     fht_run(); // process the data in the fht
     fht_mag_log(); // take the output of the fht
     int output = fht_log_out[0];
+
+    int AVG_SAMPLE = 20;
     add += output;
-    count = (count + 1)%20;
+    
+    count = (count + 1)%AVG_SAMPLE;
     wait = (wait +1)%20;
     if(wait%5 == 0) waitFlag = true;
-    if (count == 0) {average = (add + peak*25)/45-2; add = 0;}
-    /* FOR DEBUGGING
+    if (count == 0) {average = (add)/AVG_SAMPLE + 2; add = 0;}
+//     FOR DEBUGGING
     Serial.print("<");
     Serial.print(FHT_N/2);
-    Serial.print(":");
+    Serial.print(": Output: ");
     Serial.print(output);
-    Serial.print(" - " );
+    Serial.print(" - Average: " );
     Serial.print(average);
-    Serial.print(" - " );
+    Serial.print(" - Peak: " );
     Serial.print(peak);
-    Serial.print(" - " );
+    Serial.print(" - Waiting?: " );
     Serial.print(waitFlag);
     Serial.println(">");
-    */
-    if((output>=average || output>=peak )&& output > 70 && waitFlag){
+    
+    if((output>average || output>=peak )&& output > 70 && waitFlag){
       red = rand()%255;
       blue = rand()%100;
       green = rand()%100;
@@ -97,7 +99,7 @@ void scanMusic()
 
 //Homework Mode
 void white(){
-  setColor(255,100,130);
+  setColor(225,255,255);
 }
 
 //Not listen to music, just fade randomly
@@ -118,6 +120,7 @@ if(red!=red2)
   }
    setColor(red, green, blue);
 delay(40);
+
 }
 
 //Designed to Help you sleep better, unknown if it actually works
