@@ -1,6 +1,7 @@
 #define LOG_OUT 1 // use the log output function
 #define FHT_N 128 // set to 128 point fht
 #include <FHT.h>
+#include <stdio.h> // for function sprintf
 
 #define MIC_PIN   0
   int redPin = 9;
@@ -42,15 +43,16 @@ void setup()
 // the loop routine runs over and over again forever:
 
 //Analyzes the music attempting to locate the bass drum
+
+int count = 0;
+long add = 0;
+int average = 100;
+int peak = 0;
+boolean isWaiting = false;
+int wait = 0;
+
 void scanMusic()
 {
-  long add = 0;
-  int count = 0;
-  int average = 100;
-  int peak = 100;
-  boolean waitFlag = true;
-  int wait = 0;
-  while(knob>800&&knob<1000) { // reduces jitter
     for (int i = 0 ; i < FHT_N ; i++)   // save 256 samples
     {
       int sample = analogRead(MIC_PIN);
@@ -60,41 +62,48 @@ void scanMusic()
     fht_reorder(); // reorder the data before doing the fht
     fht_run(); // process the data in the fht
     fht_mag_log(); // take the output of the fht
-    int output = fht_log_out[0];
+    int output = fht_log_out[3];
 
-    int AVG_SAMPLE = 20;
+    int delayTime = 10;
+    int AVG_SAMPLE = 40;
     add += output;
-    
-    count = (count + 1)%AVG_SAMPLE;
-    wait = (wait +1)%20;
-    if(wait%5 == 0) waitFlag = true;
-    if (count == 0) {average = (add)/AVG_SAMPLE + 2; add = 0;}
+
+    count = (count + 1)% AVG_SAMPLE;
+    wait = (wait +1)%delayTime;
+    if(wait == 0) {isWaiting = false;}
+    if (count == 0) {average = (add)/AVG_SAMPLE + 5; add = 0;}
 //     FOR DEBUGGING
-    Serial.print("<");
+//    for (int z=0; z<5; z++){
+//     char buf [3];
+//     sprintf(buf, "%03d", fht_log_out[z]);
+//      Serial.print(buf); Serial.print(" ") ;
+//     }
+    Serial.print(" ");
     Serial.print(FHT_N/2);
-    Serial.print(": Output: ");
+    Serial.print(" ");
     Serial.print(output);
-    Serial.print(" - Average: " );
+    Serial.print(" " );
     Serial.print(average);
-    Serial.print(" - Peak: " );
+    Serial.print(" " );
     Serial.print(peak);
-    Serial.print(" - Waiting?: " );
-    Serial.print(waitFlag);
-    Serial.println(">");
+    Serial.print(" " );
+    Serial.print(isWaiting);
+    Serial.println();
     
-    if((output>average || output>=peak )&& output > 70 && waitFlag){
+    if((output>average+3 || output>=peak )&& output >=70 && !isWaiting){
       red = rand()%255;
       blue = rand()%100;
       green = rand()%100;
       setColor(red,green, blue);
-      Serial.println("o o o o o o o o o o o o o o o o o o o o o o o");
+      //Serial.println("o o o o o o o o o o o o o o o o o o o o o o o");
       delay(20);
-      peak = (output + 10 + 146)/2;
-      waitFlag = false;
-      wait = 0;
+      peak = (output);
+      isWaiting = true;
+      wait = 1;
+      average = (output + average) / 2;
       }
     fadeRandom();
-  }
+  
 }
 
 //Homework Mode
@@ -119,7 +128,7 @@ if(red!=red2)
     blue2 = (blue2+231)%50;
   }
    setColor(red, green, blue);
-delay(40);
+delay(5);
 
 }
 
